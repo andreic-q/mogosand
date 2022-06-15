@@ -6,14 +6,14 @@ from dotenv import load_dotenv
 # Get MongoDB credentials
 
 load_dotenv()
-MONGODB_URI = os.getenv("MONGODB_URI_FEDERATED")
+MONGODB_URI = os.getenv("MONGODB_URI_BQ")
 client = MongoClient(MONGODB_URI)
 
 db = client.test
 print(db)
 # Get MongoDB credentials
-db = client.get_database("offerPipeline")
-coll = db.get_collection("offers")
+db = client.get_database("dataRetrieval")
+coll = db.get_collection("sellerHistoryTest")
 
 
 pipeline = [

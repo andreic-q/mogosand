@@ -1,39 +1,43 @@
 from datetime import datetime, tzinfo, timezone
 from pymongo import MongoClient
 import os
+from dotenv import load_dotenv
 
+# Load environment variables from .env
+load_dotenv()
 
 # Get MongoDB credentials
 MONGODB_URI = os.getenv("MONGODB_URI_FEDERATED")
 client = MongoClient(MONGODB_URI)
 
+
 db = client.get_database("biquit")
-coll = db.get_collection("sellerHistTest")
+coll = db.get_collection("sellerHistArchive")
+print (client.test)
 
-print(coll.count_documents)
 
-# # start_date = datetime(2020, 5, 1, 0, 0, 0)  # May 1st
-# # end_date = datetime(2020, 6, 1, 0, 0, 0)  # June 1st
+start_date  = datetime(2022, 6, 13, 0, 0, 0, tzinfo=timezone.utc)
+end_date    = datetime(2022, 6, 14, 0, 0, 0, tzinfo=timezone.utc) 
 
 pipeline = [
     {
         '$match': {
             'datetime': {
-                '$gte': datetime(2022, 6, 13, 0, 0, 0, tzinfo=timezone.utc), 
-                '$lt': datetime(2022, 6, 14, 0, 0, 0, tzinfo=timezone.utc)
+                '$gte': start_date , 
+                '$lt': end_date 
             }
         }
     }
-    ,{ '$limit': 1}
+    # ,{'$limit': 10}
     ,{
         '$out': {
             's3': {
                 'bucket': 'mongo-atlas-export-test', 
                 'region': 'eu-west-2', 
-                'filename': 'sellerHistTestArchived_1record', 
+                'filename': 'sellerHistArchive_14062022_full_500MiB', 
                 'format': {
                     'name': 'parquet', 
-                    'maxFileSize': '100MiB',
+                    'maxFileSize': '500MiB',
                     'columnCompression': 'gzip'
                 }
             }
@@ -46,6 +50,6 @@ curs = coll.aggregate(pipeline)
 
 # explain =coll.explain().aggregate(pipeline)
 # print(explain)
-print('Archive created!')
-# for document in curs:
-#     print(document)
+# print('Archive created!')
+for document in curs:
+    print(document)
