@@ -28,13 +28,13 @@ pipeline = [
             }
         }
     }
-    # ,{'$limit': 10}6
+    # ,{'$limit': 10}
     ,{
         '$out': {
             's3': {
                 'bucket': 'mongo-atlas-export-test', 
                 'region': 'eu-west-2', 
-                'filename': 'sellerHistArchive_14062022_full_500MiB', 
+                'filename': 'sellerHistArchive_23062022', 
                 'format': {
                     'name': 'parquet', 
                     'maxFileSize': '500MiB',

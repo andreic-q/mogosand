@@ -1,0 +1,6 @@
+[{$match:  {
+  datetime: {
+      '$gte': ISODate("2022-06-22T00:00:00.0Z"), 
+      '$lt': ISODate("2022-06-23T00:00:00.0Z") 
+  }
+}}, {$limit: 10}]

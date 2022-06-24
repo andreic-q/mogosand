@@ -1,0 +1,56 @@
+{
+    "databases": [
+      {
+        "name": "offerPipeline",
+        "collections": [
+          {
+            "name": "offers",
+            "dataSources": [
+              {
+                "collection": "offers",
+                "database": "test-offerPipeline",
+                "storeName": "qogita-test"
+              }
+            ]
+          }
+        ],
+        "views": []
+      },
+      {
+        "name": "biquit",
+        "collections": [
+          {
+            "name": "sellerHistArchive",
+            "dataSources": [
+              {
+                "collection": "sellerHistoryArchive",
+                "database": "dataRetrieval",
+                "storeName": "qogita-biquit"
+              }
+            ]
+          }
+        ],
+        "views": []
+      }
+    ],
+    "stores": [
+      {
+        "provider": "atlas",
+        "clusterName": "qogita-test",
+        "name": "qogita-test",
+        "projectId": "5df37fb2a6f239156338971b"
+      },
+      {
+        "provider": "atlas",
+        "clusterName": "qogita-test",
+        "name": "dataStore0",
+        "projectId": "5df37fb2a6f239156338971b"
+      },
+      {
+        "provider": "atlas",
+        "clusterName": "qogita-biquit",
+        "name": "qogita-biquit",
+        "projectId": "5df37fb2a6f239156338971b"
+      }
+    ]
+  }
