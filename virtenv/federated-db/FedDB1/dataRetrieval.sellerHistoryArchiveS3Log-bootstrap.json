@@ -1,0 +1,10 @@
+// dataRetrieval.sellerHistoryArchiveS3Log --bootstrap
+
+{
+    "_id": {
+        "$oid": "62b5d493a1b10fd479e8b8c3"
+    },
+    "collection": "biquit.SellerHistoryArchive",
+    "job": "trigger.Export_Seller_Hist_Daily",
+    "start_date": "2021-07-01"
+}

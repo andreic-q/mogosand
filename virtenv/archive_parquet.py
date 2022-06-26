@@ -1,55 +1,80 @@
-from datetime import datetime, tzinfo, timezone
+from datetime import datetime, tzinfo, timezone,timedelta
+from webbrowser import BackgroundBrowser
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 
+def nextDatetime(start_dt):
+    next_day = start_dt + timedelta(days=1)
+    return next_day
 # Load environment variables from .env
 load_dotenv()
 
 # Get MongoDB credentials
+collection_name = "sellerHistArchive"
 MONGODB_URI = os.getenv("MONGODB_URI_FEDERATED")
-client = MongoClient(MONGODB_URI)
+with MongoClient(MONGODB_URI) as client:
+    debug_logs = {} 
+    db = client.get_database("biquit")
+    coll = db.get_collection(collection_name)
+    # print (client.test)
 
+    start_date  = datetime(2021, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
+    end_date    = datetime(2021, 9, 2, 0, 0, 0, tzinfo=timezone.utc) 
 
-db = client.get_database("biquit")
-coll = db.get_collection("sellerHistArchive")
-print (client.test)
+    debug_logs['jobRun'] = {'jobCreate': datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+                                , 'startDate': start_date.strftime("%Y-%m-%d")
+                                , 'endDate' : end_date.strftime("%Y-%m-%d") }     
 
+    while (nextDatetime(start_date).date()<=datetime.now(timezone.utc).date()) and (start_date.date()< end_date.date()): 
+        out_path =  collection_name + "/" + str(start_date.strftime("%Y/%m/%d")) +"/" +str(start_date.strftime("%Y%m%d"))   # build the bucket prefix for each day
+        run_end_date = nextDatetime(start_date)  # set the end date for the aggregation pipeline
 
-start_date  = datetime(2022, 6, 13, 0, 0, 0, tzinfo=timezone.utc)
-end_date    = datetime(2022, 6, 14, 0, 0, 0, tzinfo=timezone.utc) 
+        debug_start_msg=  str(datetime.now(timezone.utc))+': '+'Started archiving in s3://' + out_path + ' documents for : ' + str(start_date.strftime("%Y/%m/%d"))
+        print(debug_start_msg)
 
-pipeline = [
-    {
-        '$match': {
-            'datetime': {
-                '$gte': start_date , 
-                '$lt': end_date 
-            }
-        }
-    }
-    # ,{'$limit': 10}
-    ,{
-        '$out': {
-            's3': {
-                'bucket': 'mongo-atlas-export-test', 
-                'region': 'eu-west-2', 
-                'filename': 'sellerHistArchive_23062022', 
-                'format': {
-                    'name': 'parquet', 
-                    'maxFileSize': '500MiB',
-                    'columnCompression': 'gzip'
+        pipeline = [
+            {
+                '$match': {
+                    'datetime': {
+                        '$gte': start_date , 
+                        '$lt':  run_end_date
+                    }
+                }
+            }  
+            ,{'$limit' : 10}
+            ,{
+                '$out': {
+                    's3': {
+                        'bucket': 'mongo-atlas-export-test', 
+                        'region': 'eu-west-2', 
+                        'filename': out_path ,
+                        'format': {
+                            'name': 'parquet', 
+                            'maxFileSize': '500MiB',
+                            'columnCompression': 'gzip'
+                        }
+                    }
                 }
             }
-        }
-    }
-    # ,{ "background" : true }
-]
+            # ,{ "background" : true }
+        ]
 
-curs = coll.aggregate(pipeline)
+        curs = coll.aggregate(pipeline, allowDiskUse=True )
+        curs.close()
+        debug_end_msg= str(datetime.now(timezone.utc))+': '+'Ended archiving documents for : ' + str(start_date.strftime("%Y/%m/%d"))
+        print(debug_end_msg)
 
-# explain =coll.explain().aggregate(pipeline)
-# print(explain)
-# print('Archive created!')
-for document in curs:
-    print(document)
+        ### increment the date for the next run
+        start_date =  nextDatetime(start_date)
+        ### log the finished run in the log run table
+        ### insert the next run in the log run table with no 'status' column
+    debug_logs['jobRun']['jobEnd'] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+    print(debug_logs)
+    
+    # client.close()
+
+    ## find more about your pipeline
+    # explain =coll.explain().aggregate(pipeline)
+    # print(explain)
