@@ -3,6 +3,7 @@ from webbrowser import BackgroundBrowser
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
+import json
 
 def nextDatetime(start_dt):
     next_day = start_dt + timedelta(days=1)
@@ -31,6 +32,7 @@ with MongoClient(MONGODB_URI) as client:
         run_end_date = nextDatetime(start_date)  # set the end date for the aggregation pipeline
 
         debug_start_msg=  str(datetime.now(timezone.utc))+': '+'Started archiving in s3://' + out_path + ' documents for : ' + str(start_date.strftime("%Y/%m/%d"))
+        debug_logs['dailyRun'] = {'startMsg':debug_start_msg}
         print(debug_start_msg)
 
         pipeline = [
@@ -60,10 +62,11 @@ with MongoClient(MONGODB_URI) as client:
             # ,{ "background" : true }
         ]
 
-        curs = coll.aggregate(pipeline, allowDiskUse=True )
-        curs.close()
-        debug_end_msg= str(datetime.now(timezone.utc))+': '+'Ended archiving documents for : ' + str(start_date.strftime("%Y/%m/%d"))
+        # curs = coll.aggregate(pipeline, allowDiskUse=True )
+        # curs.close()
+        debug_end_msg= str(datetime.now(timezone.utc))+': '+'Ended archiving documents for : ' + str(start_date.strftime("%Y/%m/%d"))        
         print(debug_end_msg)
+        debug_logs['dailyRun'].update({'endMsg': debug_end_msg})
 
         ### increment the date for the next run
         start_date =  nextDatetime(start_date)
@@ -71,7 +74,7 @@ with MongoClient(MONGODB_URI) as client:
         ### insert the next run in the log run table with no 'status' column
     debug_logs['jobRun']['jobEnd'] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
 
-    print(debug_logs)
+    print(json.dumps(debug_logs))
     
     # client.close()
 
