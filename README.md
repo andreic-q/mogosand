@@ -1,6 +1,12 @@
-This repo contains the code(infrastructure including) for Offloading SellerHistory Archive from MongoDB to Datalake
+**SellerHistory Archival to S3**
 
-The archive method is parquet files partitioned by day in S3 ( one day of SellerArchive -> one partition in the datalake with prefix YYYY/MM/DD/YYYYMMDD.parquet) files.
+This repo contains the code(infrastructure including) for offloading SellerHistory Archive from MongoDB to Datalake
 
-offloading script archive_parquet.py
-data quality tests: data_tests_atlas_vs_scienceRdFebDB
+The archive method is parquet files partitioned by day in S3 parquet files.
+
+eg.: one day of SellerArchive -> one partition in the datalake with prefix YYYY/MM/DD/YYYYMMDD.parquet
+
+**Main code:**
+
+- offloading script archive_parquet.py
+- data quality tests: data_tests_atlas_vs_scienceRdFebDB
