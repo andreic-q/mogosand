@@ -1,4 +1,4 @@
-**SellerHistory Archival to S3 **
+**SellerHistory Archival to S3**
 
 This repo contains the code(infrastructure including) for offloading SellerHistory Archive from MongoDB to Datalake
 
