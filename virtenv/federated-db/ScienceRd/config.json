@@ -1,0 +1,29 @@
+{
+    "databases": [
+      {
+        "name": "s3Science",
+        "collections": [
+          {
+            "name": "sellerHistArchive",
+            "dataSources": [
+              {
+                "path": "/*",
+                "storeName": "s3science-mongo-sellerhistarchive"
+              }
+            ]
+          }
+        ],
+        "views": []
+      }
+    ],
+    "stores": [
+      {
+        "provider": "s3",
+        "bucket": "mongo-sellerhistoryarchive",
+        "delimiter": "/",
+        "name": "s3science-mongo-sellerhistarchive",
+        "prefix": "sellerHistArchive",
+        "region": "eu-west-2"
+      }
+    ]
+  }
