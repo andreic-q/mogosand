@@ -15,3 +15,20 @@
     }
   ]
 }
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Principal": {
+              "AWS": "arn:aws:iam::536727724300:root"
+          },
+          "Action": "sts:AssumeRole",
+          "Condition": {
+              "StringEquals": {
+                  "sts:ExternalId": "9d260078-5715-4c92-ab02-405400ae2ed0"
+              }
+          }
+      }
+  ]
+}

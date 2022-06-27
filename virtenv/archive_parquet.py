@@ -20,8 +20,8 @@ with MongoClient(MONGODB_URI) as client:
     coll = db.get_collection(collection_name)
     # print (client.test)
 
-    start_date  = datetime(2021, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
-    end_date    = datetime(2021, 9, 2, 0, 0, 0, tzinfo=timezone.utc) 
+    start_date  = datetime(2022, 6, 26, 0, 0, 0, tzinfo=timezone.utc)
+    end_date    = datetime(2022, 6, 28, 0, 0, 0, tzinfo=timezone.utc) 
 
     debug_logs['jobRun'] = {'jobCreate': datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
                                 , 'startDate': start_date.strftime("%Y-%m-%d")
@@ -44,7 +44,7 @@ with MongoClient(MONGODB_URI) as client:
                     }
                 }
             }  
-            ,{'$limit' : 10}
+            # ,{'$limit' : 10}
             ,{
                 '$out': {
                     's3': {
@@ -62,7 +62,7 @@ with MongoClient(MONGODB_URI) as client:
             # ,{ "background" : true }
         ]
 
-        # curs = coll.aggregate(pipeline, allowDiskUse=True )
+        curs = coll.aggregate(pipeline, allowDiskUse=True )
         # curs.close()
         debug_end_msg= str(datetime.now(timezone.utc))+': '+'Ended archiving documents for : ' + str(start_date.strftime("%Y/%m/%d"))        
         print(debug_end_msg)
