@@ -1,19 +1,29 @@
-exports = function () {
+exports = async function () {
 
-  const coll = "sellerHistArchive";
   const datalake = context.services.get("FedDB1");
-  const db = datalake.db("biquit");
-  const events = db.collection(coll);
-     
-  const start_dt_string = '2022-01-01';
-  // const end_date = new Date('2022-01-02'); //new Date(Date.now());
-  const end_date = getNextDay(new Date(start_dt_string));
-
-  var splittedDate = splitDate(start_dt_string);
-  const out_path=splittedDate.join('/');
-  console.log(out_path);
+  const coll = "sellerHistArchive";
+  const jobLogs = datalake.db("test").collection("logs");
+  const sellerHist = datalake.db("biquit").collection(coll);
+  
+  const result =await jobLogs.find({"status" : {"$exists":0}},{"_id": 1,  "start_date": 1 },{"$orderby": { "started_at" : -1 }})
+        .toArray();
+  result.forEach(doc =>  start_dt_string = doc.start_date);
+  
+  // console.log(start_dt_string);
+  // console.log(new Date(start_dt_string));
+  // const result =await logsColl.findOne({ "start_date": "2021-07-20"});
+  // console.log(result._id);
+   
+  // nextRunDoc.forEach( function(docs) { print( "Next Run: " + docs.start_date ) } ); // pass in a JS function
+  //new Date(Date.now()); 
+  
+  const end_date = getNextDay(new Date(start_dt_string))
+  var recon_date = splitDate(start_dt_string);
+  const out_path=recon_date.join('/');
+  const outFileName = recon_date[0]+recon_date[1]+recon_date[2];
+  console.log(out_path + "/" + outFileName);
  
-    const pipeline = [
+  const pipeline = [
        {
          '$match': 
              {datetime: 
@@ -23,6 +33,7 @@ exports = function () {
                      }
              }
        }
+       ,{'$limit': 50}
        , {
          '$out': {
              's3': {
@@ -30,25 +41,25 @@ exports = function () {
                  'region': 'eu-west-2', 
                  'filename': {'$concat':[ coll, "/"
                                           ,out_path
-                                         ,"/"]
+                                          ,"/"
+                                          ,outFileName]
                              }, 
                  'format': {
                      'name': 'parquet', 
-                     'maxFileSize': '500MiB',
+                     'maxFileSize': '1GB',
                      'columnCompression': 'gzip'
                  }
              }
          }
      }
-     
     ];
  
-   return events.aggregate(pipeline,{ allowDiskUse: true });
- };
+return sellerHist.aggregate(pipeline,{ allowDiskUse: true });
+}
  
- //  Sat Dec 31 2022
- // console.log(getPreviousDay(new Date('2023-01-01')));
 
+//  Sat Dec 31 2022
+// console.log(getPreviousDay(new Date('2023-01-01')));
  function getPreviousDay(date = new Date()) {
    const previous = new Date(date.getTime());
    previous.setDate(date.getDate() - 1);
@@ -64,9 +75,9 @@ exports = function () {
   return next;
 }
  
- //split date in format 'YYYY-MM-DD'
+ //split date into array ['YYYY','MM','DD']
  function splitDate(date){
-   var result = date.split('-');
-   return result;
+   var split_date = date.split('-');
+   return split_date;
    
  }

@@ -53,7 +53,7 @@ with MongoClient(MONGODB_URI) as client:
                         'filename': out_path ,
                         'format': {
                             'name': 'parquet', 
-                            'maxFileSize': '500MiB',
+                            'maxFileSize': '1GB',
                             'columnCompression': 'gzip'
                         }
                     }
