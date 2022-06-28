@@ -22,17 +22,18 @@ with MongoClient(MONGODB_URI) as client:
 
     start_date  = datetime(2022, 6, 26, 0, 0, 0, tzinfo=timezone.utc)
     end_date    = datetime(2022, 6, 28, 0, 0, 0, tzinfo=timezone.utc) 
-
+    
     debug_logs['jobRun'] = {'jobCreate': datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
                                 , 'startDate': start_date.strftime("%Y-%m-%d")
                                 , 'endDate' : end_date.strftime("%Y-%m-%d") }     
+    debug_logs['dailyRun'] =[]
 
     while (nextDatetime(start_date).date()<=datetime.now(timezone.utc).date()) and (start_date.date()< end_date.date()): 
         out_path =  collection_name + "/" + str(start_date.strftime("%Y/%m/%d")) +"/" +str(start_date.strftime("%Y%m%d"))   # build the bucket prefix for each day
         run_end_date = nextDatetime(start_date)  # set the end date for the aggregation pipeline
-
-        debug_start_msg=  str(datetime.now(timezone.utc))+': '+'Started archiving in s3://' + out_path + ' documents for : ' + str(start_date.strftime("%Y/%m/%d"))
-        debug_logs['dailyRun'] = {'startMsg':debug_start_msg}
+        debug_start_msg= str(datetime.now(timezone.utc))+': Started archiving in s3://' + out_path + ' documents for : ' + str(start_date.strftime("%Y/%m/%d"))
+        run_logs={}
+        run_logs['msg'] ={'startMsg':debug_start_msg}
         print(debug_start_msg)
 
         pipeline = [
@@ -53,7 +54,7 @@ with MongoClient(MONGODB_URI) as client:
                         'filename': out_path ,
                         'format': {
                             'name': 'parquet', 
-                            'maxFileSize': '1GB',
+                            'maxFileSize': '2GB',
                             'columnCompression': 'gzip'
                         }
                     }
@@ -62,12 +63,12 @@ with MongoClient(MONGODB_URI) as client:
             # ,{ "background" : true }
         ]
 
-        curs = coll.aggregate(pipeline, allowDiskUse=True )
+        # curs = coll.aggregate(pipeline, allowDiskUse=True )
         # curs.close()
-        debug_end_msg= str(datetime.now(timezone.utc))+': '+'Ended archiving documents for : ' + str(start_date.strftime("%Y/%m/%d"))        
+        debug_end_msg= str(datetime.now(timezone.utc))+': Finished archiving documents for : ' + str(start_date.strftime("%Y/%m/%d"))        
         print(debug_end_msg)
-        debug_logs['dailyRun'].update({'endMsg': debug_end_msg})
-
+        run_logs['msg'].update({'endMsg': debug_end_msg})
+        debug_logs['dailyRun'].append(run_logs['msg'])
         ### increment the date for the next run
         start_date =  nextDatetime(start_date)
         ### log the finished run in the log run table
