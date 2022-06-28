@@ -44,9 +44,8 @@ exports = function() {
           numOrders: { $size: "$orderIds" }
       } }
     ]).next()
-      .then(dailyReport => {
-        reports.insertOne(dailyReport);
-      })
+      .then(dailyReport => {reports.insertOne(dailyReport);}
+            )
       .catch(err => console.error("Failed to generate report:", err));
   };
   
