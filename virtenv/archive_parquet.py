@@ -62,20 +62,23 @@ with MongoClient(MONGODB_URI) as client:
             }
             # ,{ "background" : true }
         ]
-
-        # curs = coll.aggregate(pipeline, allowDiskUse=True )
-        # curs.close()
+        # run the pipe against mongo federated db
+        curs = coll.aggregate(pipeline, allowDiskUse=True )
+        
         debug_end_msg= str(datetime.now(timezone.utc))+': Finished archiving documents for : ' + str(start_date.strftime("%Y/%m/%d"))        
         print(debug_end_msg)
+        # building logging messages
         run_logs['msg'].update({'endMsg': debug_end_msg})
         debug_logs['dailyRun'].append(run_logs['msg'])
         ### increment the date for the next run
         start_date =  nextDatetime(start_date)
+
         ### log the finished run in the log run table
         ### insert the next run in the log run table with no 'status' column
+
     debug_logs['jobRun']['jobEnd'] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
 
-    print(json.dumps(debug_logs))
+    # print(json.dumps(debug_logs))
     
     # client.close()
 
