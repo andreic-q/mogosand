@@ -1,0 +1,9 @@
+// MongoDB Playground
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
+
+// The current database to use.
+use('dataRetrieval');
+
+// Search for documents in the current collection.
+db.getCollection('sellerHistoryArchiveS3Log')
+  .find({"_id": ObjectId("62bebf8959857f457c23e72b")} );

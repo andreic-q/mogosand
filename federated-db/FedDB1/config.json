@@ -45,6 +45,13 @@
       "clusterName": "qogita-biquit",
       "name": "qogita-biquit",
       "projectId": "5df37fb2a6f239156338971b"
+    },
+    {
+      "name": "s3MongoSellerHistoryArchive",
+      "provider": "s3",
+      "bucket": "mongo-sellerhistoryarchive",
+      "prefix": "sellerHistArchive/",
+      "delimiter": "/"
     }
   ]
 }
