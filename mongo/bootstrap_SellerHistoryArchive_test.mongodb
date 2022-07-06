@@ -1,0 +1,16 @@
+// MongoDB Playground
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
+
+// The current database to use.
+use('dataRetrieval');
+
+// Search for documents in the current collection.
+db.getCollection('sellerHistoryArchiveS3Log')
+.insertOne({
+            "collection": "biquit.SellerHistoryArchive",
+            "job": "trigger.Export_Seller_Hist_Daily",
+            "start_date": '2999-01-01',
+            "notes": "test initiated from trigger",
+            "run_created_at": new Date(Date.now()),
+            "updated_at": new Date(Date.now())
+            });

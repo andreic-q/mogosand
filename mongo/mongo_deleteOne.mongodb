@@ -1,0 +1,9 @@
+// MongoDB Playground
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
+
+// The current database to use.
+use('dataRetrieval');
+
+// Search for documents in the current collection.
+db.getCollection('sellerHistoryArchiveS3Log')
+  .deleteOne({_id :ObjectId("62c4237dfb62254410645810")});
