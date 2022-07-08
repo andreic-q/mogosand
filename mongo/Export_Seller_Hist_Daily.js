@@ -15,16 +15,22 @@ exports = async function () {
           start_dt_string = doc.start_date; 
           run_id = doc._id;
           });
-          console.log(new Date(start_dt_string) + ' ' + new Date(Date.now()) ) 
           
-          if ((new Date(start_dt_string)) < (new Date(Date.now())) ) {
+          run_date = new Date(start_dt_string);
+          
+          var  current_date_start = new Date(Date.now());
+          current_date_start.setHours(0, 0, 0, 0);
+          
+          console.log('Comparing run date :'+ run_date + ' with start of current day: ' + current_date_start ) 
+          
+          if (run_date < current_date_start) {
             console.log('Start building pipeline for run sellerHistoryArchiveS3Log._id: ' + run_id );
-            const end_date  = getNextDay(new Date(start_dt_string));
+            const end_date  = getNextDay(run_date);
             var   recon_date = splitDate(start_dt_string);
             const out_path  = recon_date.join('/');
             const out_file_name = recon_date[0]+recon_date[1]+recon_date[2];
             
-            const pipeline = getPipeline(start_dt_string,
+            const pipeline = getPipeline(run_date,
                                          end_date,
                                          coll,
                                          out_path,
@@ -56,7 +62,7 @@ exports = async function () {
                        throw error;
                        });
         } else {
-            console.log(`Start date: ${start_dt_string} for run id: ${run_id} is in the future in sellerHistoryArchiveS3Log` );
+            console.log(`Start date: ${start_dt_string} for run id: ${run_id} is greater than max date in sellerHistoryArchive` );
             return(`No runs executed.Next run Start date is in the future`);
             }
   }
@@ -95,7 +101,7 @@ function splitDate(date){
  return split_date;
 }
 
-function getPipeline(start_date, end_date, coll, out_path, out_file_name){
+function getPipeline(run_date, end_date, coll, out_path, out_file_name){
   
   console.log('Building Pipe for new run date:' + out_path );
   const pipeline = [
@@ -103,7 +109,7 @@ function getPipeline(start_date, end_date, coll, out_path, out_file_name){
           '$match': 
               {datetime: 
                       {
-                      '$gte': new Date(start_dt_string),
+                      '$gte': run_date,
                       '$lt':  end_date
                       }
               }
